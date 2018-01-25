@@ -1,3 +1,4 @@
+
 import os
 import requests
 
@@ -12,45 +13,51 @@ def get_top100_list(refresh_html=False):
         51~100위: data/chart_realtime_100.html
     :return:
     """
-    # 프로젝트 컨테이너 폴더 경로
+    # utils가 있는
     path_module = os.path.abspath(__name__)
-    print(f'path_module: {path_module}')
-    path_module_dir = os.path.dirname(path_module)
-    print(f'path_module_dir: {path_module_dir}')
+    print(f'path_module: \n{path_module}')
 
-    root_dir = os.path.dirname(os.path.abspath(__name__))
-    print(f'root_dir: {root_dir}')
+    # 프로젝트 컨테이너 폴더 경로
+    root_dir = os.path.dirname(path_module)
+    print(f'root_dir: \n{root_dir}')
+
     # data/ 폴더 경로
-
     path_data_dir = os.path.join(root_dir, 'data')
-    print(f'path_data_dir: {path_data_dir}')
-    if not os.path.exists(path_data_dir):
-            os.makedirs(path_data_dir)
+    print(f'path_data_dir: \n{path_data_dir}')
+
+    # 만약에 path_data_dir에 해당하는 폴더가 없을 경우 생성해준다
+    os.makedirs(path_data_dir, exist_ok=True)
 
     # 1~50, 50~100위 웹페이지 주소
     url_chart_realtime_50 = 'https://www.melon.com/chart/index.htm'
     url_chart_realtime_100 = 'https://www.melon.com/chart/index.htm#params%5Bidx%5D=51'
 
+    # 1~50위에 해당하는 웹페이지 HTML을
+    # data/chart_realtime_50.html 에 저장
+    # 'xt'모드와 try-except를 쓸 경우
+    file_path = os.path.join(path_data_dir, 'chart_realtime_50.html')
+    try:
+        with open(file_path, 'xt') as f:
+            response = requests.get(url_chart_realtime_50)
+            source = response.text
+            f.write(source)
+    except FileExistsError:
+        print(f'"{file_path}" file is already exists!')
 
-    file_path1 = os.path.join(path_data_dir, 'chart_50.html')
-    file_path2 = os.path.join(path_data_dir, 'chart_100.html')
+    # 51~100위에 해당하는 웹페이지 HTML을
+    # data/chart_realtime_100.html 에 저장
+    # 파일이 있는 경우를 검사 후 로직 실행
+    file_path = os.path.join(path_data_dir, 'chart_realtime_100.html')
+    if not os.path.exists(file_path):
+        response = requests.get(url_chart_realtime_100)
+        source = response.text
+        with open(file_path, 'wt') as f:
+            f.write(source)
+    else:
+        print(f'"{file_path}" file is already exists!')
 
-
-    url_text1 = requests.get(url_chart_realtime_50)
-    source1 = url_text1.content
-    url_text2 = requests.get(url_chart_realtime_100)
-    source2 = url_text2.content
-
-    chart_50 = open(file_path1, 'wb')
-    chart_50.write(source1)
-    chart_50.close()
-
-    chart_100 = open(file_path2, 'wb')
-    chart_100.write(source2)
-    chart_100.close()
-
-
-
+    # file_path = os.path.join(path_data_dir, 'abc.txt')
+    # print(f'file_path: \n{file_path}')
 
     # result = []
     # for tr in soup.find_all('tr', class_='lst50'):
