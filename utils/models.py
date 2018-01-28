@@ -73,6 +73,7 @@ class MelonCrawler:
 
 
         artist_info_list = soup.find_all('div', class_='atist_info')
+        result =[]
         for artist_info in artist_info_list:
             artist_name_match = re.search(PATTERN_ARTIST_NAME, artist_info.a['title'])
 
@@ -89,11 +90,14 @@ class MelonCrawler:
 
             genre_iter = artist_info.find('div', class_='ellipsis fc_strong').contents
             genre_list = []
-
             for a in genre_iter:
                 if a != '\n' and a !=', ':
                     genre_list.append(a.text)
-            pass
+
+            artist = Artist(artist_id = artist_id, name = artist_name, genre = genre_list)
+            result.append(artist)
+
+        return result
     """
     아티스트 검색
     http://www.melon.com/search/artist/index.htm?q=%EC%95%84%EC%9D%B4%EC%9C%A0&section=&searchGnbYn=Y&kkoSpl=N&kkoDpType=&ipath=srch_form
@@ -246,8 +250,39 @@ class Artist:
         self.__awards = info_dict_refined['수상이력']
 
 
+
+
     def __str__(self):
-       return f'{self.name} 아티스트 id: {self.artist_id}, 장르: {self.genre}, 데뷔일: {self.__debut}, 소속사 {self.__agency}, 활동유형: {self.__solo_or_group}'
+       return f'{self.name} 아티스트 id: {self.artist_id}, 장르: {self.genre}'
+
+    @property
+    def debut(self):
+        if not self.__debut:
+            self.get_detail()
+        return self.__debut
+
+    @property
+    def birthday(self):
+        if not self.__birthday:
+            self.get_detail()
+        return self.__birthday
+
+    @property
+    def solo_or_group(self):
+        if not self.__solo_or_group:
+            self.get_detail()
+        return self.__solo_or_group
+
+    @property
+    def agency(self):
+        if not self.__agency:
+            self.get_detail()
+        return self.__agency
+    @property
+    def awards(self):
+        if not self.__awards:
+            self.get_detail()
+        return self.__awards
 
 
 
